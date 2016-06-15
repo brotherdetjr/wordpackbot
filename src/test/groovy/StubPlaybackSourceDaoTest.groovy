@@ -7,9 +7,6 @@ import wordpackbot.dao.StubPlaybackSourceDao
 class StubPlaybackSourceDaoTest extends Specification {
 
     @Shared
-            random = new Random(0)
-
-    @Shared
             config = new ConfigSlurper().parse('''
 wordPacks {
     '188589442' {
@@ -24,15 +21,15 @@ wordPacks {
 }''')
 
     @Shared
-            dao = new StubPlaybackSourceDao(config, random)
+            dao = new StubPlaybackSourceDao(config, new Random(0))
 
     @Unroll
     def 'shuffled() returns (pseudo)random sequence each time'() {
         given:
-        def result = new BlockingVariable<Boolean>()
+        def result = new BlockingVariable<List>()
         expect:
-        dao.shuffled(188589442L, 'тест').setHandler { result.set(it.result() == expected) }
-        result.get()
+        dao.shuffled(188589442L, 'тест').setHandler { result.set(it.result() as List) }
+        result.get() == expected
         where:
         expected << [[
                              ['собачка', 'doggy', "'доги"],

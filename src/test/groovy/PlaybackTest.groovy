@@ -11,9 +11,6 @@ import wordpackbot.states.StateFactory
 class PlaybackTest extends Specification {
 
     @Shared
-            random = new Random(0)
-
-    @Shared
             config = new ConfigSlurper().parse('''
 wordPacks {
     '188589442' {
@@ -28,7 +25,7 @@ wordPacks {
 }''')
 
     @Shared
-            stateFactory = new StateFactory(new StubPlaybackSourceDao(config, random))
+            stateFactory = new StateFactory(new StubPlaybackSourceDao(config, new Random(0)))
 
     @Shared
             Future<State> playback
@@ -36,11 +33,11 @@ wordPacks {
     @Unroll
     def 'next word is #expected'() {
         given:
-        def result = new BlockingVariable<Boolean>()
-        playback = playback == null ? stateFactory.startPlayback(188589442L, 'тест') : playback.result().transit('next')
+        def result = new BlockingVariable<String>()
+        playback = playback ? playback.result().transit('next') : stateFactory.startPlayback(188589442L, 'тест')
         expect:
-        playback.setHandler { result.set(it.result().value == expected) }
-        result.get()
+        playback.setHandler { result.set(it.result().value as String) }
+        result.get() == expected
         where:
         expected << ['собачка', 'doggy', "'доги",
                      'киска', 'pussy', "'паси",
