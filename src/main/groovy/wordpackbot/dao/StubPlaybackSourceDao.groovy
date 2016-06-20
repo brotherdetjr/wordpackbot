@@ -19,6 +19,6 @@ class StubPlaybackSourceDao implements PlaybackSourceDao {
     Future<Collection<Collection<String>>> shuffled(Long userId, String wordPackName) {
         def source = [] + config.wordPacks[Long.toString(userId)][wordPackName].content
         shuffle source, random
-        succeededFuture(source)
+        succeededFuture source
     }
 }

@@ -18,9 +18,13 @@ class StateFactory {
         def result = future()
         Future<Collection<Collection<String>>> source = playbackSourceDao.shuffled userId, wordPackName
         source.setHandler {
-            def entryIterator = it.result().collect({ it + END_OF_ENTRY }).collectMany(IDENTITY).iterator()
-            def value = entryIterator.next() as String
-            result.complete new Playback(value, entryIterator, { this.startPlayback userId, wordPackName })
+            if (it.cause() == null) {
+                def entryIterator = it.result().collect({ it + END_OF_ENTRY }).collectMany(IDENTITY).iterator()
+                def value = entryIterator.next() as String
+                result.complete new Playback(value, entryIterator, { startPlayback userId, wordPackName })
+            } else {
+                result.fail it.cause()
+            }
         }
         result
     }

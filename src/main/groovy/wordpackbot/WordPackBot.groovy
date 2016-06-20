@@ -27,7 +27,7 @@ class WordPackBot extends VertxBot {
                     text: stateWrapper.value,
                     chatId: Long.toString(message.chatId))
             log.info "Sending message: $toSend"
-            send toSend, { log.info "Response to sent message: ${it.result()}" }
+            send toSend
 
             stateWrapper.transit 'next'
         }
@@ -35,6 +35,6 @@ class WordPackBot extends VertxBot {
 
     @Override
     protected Future<State> initialState(Long userId) {
-        stateFactory.startPlayback(userId, 'тест')
+        stateFactory.startPlayback userId, 'тест'
     }
 }
