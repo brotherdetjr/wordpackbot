@@ -18,18 +18,18 @@ class WordPackBot extends VertxBot {
     }
 
     @Override
-    void onUpdate(Update update, StateWrapper stateWrapper) {
+    void onUpdate(Update update, Long userId, State state, Closure transitTo) {
         if (update.hasMessage()) {
             def message = update.message
             log.info "Update with message: $update"
 
             def toSend = new SendMessage(
-                    text: stateWrapper.value,
+                    text: state.value,
                     chatId: Long.toString(message.chatId))
             log.info "Sending message: $toSend"
             send toSend
 
-            stateWrapper.transit 'next'
+            transitTo 'next'
         }
     }
 

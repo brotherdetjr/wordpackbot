@@ -23,4 +23,15 @@ class UpdateUtils {
             throw new IllegalArgumentException()
         }
     }
+
+    static Long extractChatId(Update update) {
+        if (update.hasMessage()) {
+            return update.message.chatId
+        } else if (update.hasEditedMessage()) {
+            return update.editedMessage.chatId
+        } else {
+            throw new IllegalArgumentException()
+        }
+    }
+
 }
