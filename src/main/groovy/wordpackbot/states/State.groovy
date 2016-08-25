@@ -2,7 +2,7 @@ package wordpackbot.states
 
 import io.vertx.groovy.core.Future
 
-interface State {
-    def <T> T getValue()
+interface State<T> {
+    def T getValue()
     def Future<State> transit(transition)
 }

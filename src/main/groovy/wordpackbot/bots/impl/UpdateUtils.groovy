@@ -1,11 +1,19 @@
-package wordpackbot
+package wordpackbot.bots.impl
 
 import org.telegram.telegrambots.api.objects.Update
 
 class UpdateUtils {
 
     private UpdateUtils() {
-        // utility class
+        throw new AssertionError()
+    }
+
+    static String extractText(Update update) {
+        if (update.hasMessage()) {
+            return update.message.text
+        } else {
+            throw new IllegalArgumentException()
+        }
     }
 
     static Long extractUserId(Update update) {

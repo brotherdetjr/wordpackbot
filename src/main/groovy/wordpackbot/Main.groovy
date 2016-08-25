@@ -2,6 +2,7 @@ package wordpackbot
 
 import groovy.util.logging.Log4j2
 import org.telegram.telegrambots.TelegramBotsApi
+import wordpackbot.bots.impl.TelegramBot
 import wordpackbot.dao.StubPlaybackSourceDao
 import wordpackbot.states.StateFactory
 
@@ -14,7 +15,9 @@ class Main {
         def config = new ConfigSlurper()
                 .parse(currentThread().contextClassLoader.getResourceAsStream('config.groovy').text)
         def stateFactory = new StateFactory(new StubPlaybackSourceDao(config))
-        new TelegramBotsApi().registerBot new WordPackBot(vertx(), config, stateFactory)
+        //noinspection GroovyAssignabilityCheck
+        def bot = new TelegramBot(config.token, config.name).register(new TelegramBotsApi())
+        new WordPackController(vertx(), bot, stateFactory)
         log.info 'Started'
     }
 }
