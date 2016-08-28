@@ -8,18 +8,24 @@ import wordpackbot.bots.UpdateEvent
 import wordpackbot.states.State
 
 import static dummy.DummyState.futureDummyState
+import static io.vertx.groovy.core.Future.succeededFuture
 
 class DummyController extends VertxController<Integer> {
 
-    DummyController(Vertx vertx, Bot bot) {
+    private final initialValue
+
+    DummyController(Vertx vertx, Bot bot, int initialValue) {
         super(vertx, bot)
+        this.initialValue = initialValue
     }
 
     @Override
-    protected Future<DummyState> initialState(Long userId) { futureDummyState 33 }
+    protected Future<DummyState> initialState(Long userId) { futureDummyState initialValue }
 
     @Override
     protected Future<Integer> onUpdate(UpdateEvent event, State<Integer> state) {
-        futureDummyState state.value + Integer.parseInt(event.text)
+        def newValue = state.value + Integer.parseInt(event.text)
+        send Integer.toString(newValue), event.chatId
+        succeededFuture newValue
     }
 }

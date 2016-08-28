@@ -23,7 +23,7 @@ class Playback implements State<String> {
 
     @SuppressWarnings("ChangeToOperator")
     @Override
-    Future<Playback> transit(Object transition) {
+    Future<Playback> transit(transition) {
         def value = entryIterator.next()
         if (value == END_OF_ENTRY) {
             value = entryIterator.hasNext() ? entryIterator.next() : null

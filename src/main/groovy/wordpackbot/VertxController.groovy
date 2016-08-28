@@ -32,7 +32,8 @@ abstract class VertxController<T> {
         }
     }
 
-    private void doUpdate(UpdateEvent event) {
+    // should be private
+    protected void doUpdate(UpdateEvent event) {
         if (!sessions.containsKey(event.userId)) {
             initialState(event.userId).setHandler {
                 if (it.cause() == null) {
@@ -47,7 +48,8 @@ abstract class VertxController<T> {
         }
     }
 
-    private void transit(UpdateEvent event, State<T> state) {
+    // should be private
+    protected void transit(UpdateEvent event, State<T> state) {
         onUpdate(event, state).setHandler {
             if (it.cause() == null) {
                 sessions[event.userId].state.transit(it.result()).setHandler {
