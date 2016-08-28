@@ -5,11 +5,14 @@ import io.vertx.groovy.core.Future
 import io.vertx.groovy.core.Vertx
 import wordpackbot.bots.Bot
 import wordpackbot.bots.UpdateEvent
+import wordpackbot.states.Playback
 import wordpackbot.states.State
 import wordpackbot.states.StateFactory
 
+import static io.vertx.groovy.core.Future.succeededFuture
+
 @Log4j2
-class WordPackController extends VertxController {
+class WordPackController extends VertxController<String> {
 
     private final StateFactory stateFactory
 
@@ -19,14 +22,14 @@ class WordPackController extends VertxController {
     }
 
     @Override
-    void onUpdate(UpdateEvent update, State state, Closure transitTo) {
+    Future<String> onUpdate(UpdateEvent update, State<String> state) {
         log.info "Sending message: $state.value"
-        bot.send state.value as String, update.chatId
-        transitTo 'next'
+        send state.value, update.chatId
+        succeededFuture 'next'
     }
 
     @Override
-    protected Future<State> initialState(Long userId) {
+    protected Future<Playback> initialState(Long userId) {
         stateFactory.startPlayback userId, 'тест'
     }
 }

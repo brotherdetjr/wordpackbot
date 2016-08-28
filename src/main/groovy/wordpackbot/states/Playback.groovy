@@ -4,12 +4,12 @@ import io.vertx.groovy.core.Future
 
 import static io.vertx.groovy.core.Future.succeededFuture
 
-class Playback implements State {
+class Playback implements State<String> {
 
-    final static END_OF_ENTRY = new Object()
+    final static END_OF_ENTRY = new String()
 
     private final String value
-    private final Iterator entryIterator
+    private final Iterator<String> entryIterator
     private final Closure<Future<State>> onFinish
 
     Playback(String value, Iterator entryIterator, Closure<Future<State>> onFinish) {
@@ -21,12 +21,13 @@ class Playback implements State {
     @Override
     String getValue() { value }
 
+    @SuppressWarnings("ChangeToOperator")
     @Override
-    Future<State> transit(Object transition) {
+    Future<Playback> transit(Object transition) {
         def value = entryIterator.next()
         if (value == END_OF_ENTRY) {
             value = entryIterator.hasNext() ? entryIterator.next() : null
         }
-        value ? succeededFuture(new Playback(value as String, entryIterator, onFinish) as State) : onFinish()
+        value ? succeededFuture(new Playback(value, entryIterator, onFinish) as State) : onFinish() as Future<Playback>
     }
 }

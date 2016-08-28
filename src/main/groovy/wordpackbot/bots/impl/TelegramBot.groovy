@@ -1,5 +1,6 @@
 package wordpackbot.bots.impl
 
+import io.vertx.groovy.core.Future
 import org.json.JSONObject
 import org.telegram.telegrambots.TelegramBotsApi
 import org.telegram.telegrambots.api.methods.BotApiMethod
@@ -15,6 +16,7 @@ import wordpackbot.bots.UpdateEvent
 import static UpdateUtils.extractChatId
 import static UpdateUtils.extractText
 import static UpdateUtils.extractUserId
+import static io.vertx.groovy.core.Future.future
 
 class TelegramBot extends Bot {
 
@@ -41,22 +43,24 @@ class TelegramBot extends Bot {
     }
 
     @Override
-    void send(String text, Long chatId, Closure callback = { -> }) {
+    Future<Object> send(String text, Long chatId) {
+        def future = future()
         bot.sendMessageAsync new SendMessage(text: text, chatId: Long.toString(chatId)), new SentCallback<Message>() {
             @Override
             void onResult(BotApiMethod<Message> method, JSONObject jsonObject) {
-                callback.call method, jsonObject
+                future.complete jsonObject
             }
 
             @Override
             void onError(BotApiMethod<Message> method, JSONObject jsonObject) {
-                fire new BotException(jsonObject)
+                future.fail new BotException(jsonObject)
             }
 
             @Override
             void onException(BotApiMethod<Message> method, Exception exception) {
-                fire new BotException(null, exception)
+                future.fail new BotException(null, exception)
             }
         }
+        future
     }
 }
