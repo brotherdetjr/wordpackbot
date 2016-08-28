@@ -10,6 +10,13 @@ import wordpackbot.bots.UpdateEvent
 import static io.vertx.groovy.core.Future.succeededFuture
 
 class VertxControllerTest extends Specification {
+
+    static final
+            USER_1 = 2,
+            USER_2 = 22,
+            CHAT_1 = 3,
+            CHAT_2 = 30
+
     def 'does my day'() {
         given:
         def vertx = Mock(Vertx) {
@@ -28,9 +35,21 @@ class VertxControllerTest extends Specification {
         //noinspection GroovyResultOfObjectAllocationIgnored
         new DummyController(vertx, bot, 29)
         when:
-        bot.fire new UpdateEvent('4', 2, 3)
+        bot.fire new UpdateEvent('4', USER_1, CHAT_1)
         then:
-        1 * sender.send('33', 3)
+        1 * sender.send('33', CHAT_1)
+        when:
+        bot.fire new UpdateEvent('9', USER_2, CHAT_1)
+        then:
+        1 * sender.send('38', CHAT_1)
+        when:
+        bot.fire new UpdateEvent('9', USER_1, CHAT_1)
+        then:
+        1 * sender.send('42', CHAT_1)
+        when:
+        bot.fire new UpdateEvent('2', USER_2, CHAT_2)
+        then:
+        1 * sender.send('40', CHAT_2)
     }
 
     interface Sender {

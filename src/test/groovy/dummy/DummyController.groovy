@@ -24,8 +24,8 @@ class DummyController extends VertxController<Integer> {
 
     @Override
     protected Future<Integer> onUpdate(UpdateEvent event, State<Integer> state) {
-        def newValue = state.value + Integer.parseInt(event.text)
-        send Integer.toString(newValue), event.chatId
-        succeededFuture newValue
+        def increment = Integer.parseInt(event.text)
+        send Integer.toString(state.value + increment), event.chatId
+        succeededFuture increment
     }
 }
