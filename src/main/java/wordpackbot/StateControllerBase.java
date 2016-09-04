@@ -25,58 +25,57 @@ public abstract class StateControllerBase<V, T, S extends State<V, T, S>> {
     public void init(Executor executor) {
         bot.onUpdate(event -> executor.execute(() -> {
             log.debug("Processing event {}", event);
-            Session session = sessions.get(event.getUserId());
-            if (session == null || !session.isBusy()) {
-                if (session != null) {
+            Session<V, T, S> session =
+                    sessions.computeIfAbsent(event.getUserId(), userId -> initSession(userId, event.getChatId()));
+            //noinspection SynchronizationOnLocalVariableOrMethodParameter
+            synchronized (session) {
+                if (!session.isBusy()) {
                     session.setBusy(true);
+                    callOnUpdate(event, session);
+                } else {
+                    send(NOT_SO_FAST_MESSAGE, event.getChatId());
                 }
-                doUpdate(event);
-            } else {
-                send(NOT_SO_FAST_MESSAGE, event.getChatId());
             }
         }));
     }
 
-    public void init() {
-        init(directExecutor());
-    }
-
-    private void doUpdate(UpdateEvent event) {
-        Session<V, T, S> session = sessions.get(event.getUserId());
-        if (session == null) {
-            initialState(event.getUserId()).whenComplete((result, ex) -> {
-                if (ex == null) {
-                    sessions.put(event.getUserId(), new Session<>(result, true));
-                    transit(event, result);
-                } else {
-                    send(getStackTraceAsString(ex), event.getChatId());
-                }
-            });
-        } else {
-            transit(event, session.getState());
-        }
-    }
-
-    private void transit(UpdateEvent event, S state) {
-        onUpdate(event, state).whenComplete((result, ex) -> {
+    private Session<V, T, S> initSession(long userId, long chatId) {
+        Session<V, T, S> session = new Session<>(null, false);
+        initialState(userId).whenComplete((result, ex) -> {
             if (ex == null) {
-                state.transit(result).whenComplete(finishTransition(event));
+                session.setState(result);
+            } else {
+                sessions.remove(userId);
+                send(getStackTraceAsString(ex), chatId);
+            }
+        });
+        return session;
+    }
+
+    private void callOnUpdate(UpdateEvent event, Session<V, T, S> session) {
+        S state = session.getState();
+        onUpdate(event, state).whenComplete((transition, ex) -> {
+            if (ex == null) {
+                state.transit(transition).whenComplete(finishTransition(event, session));
             } else {
                 send(getStackTraceAsString(ex), event.getChatId());
             }
         });
     }
 
-    private BiConsumer<S, Throwable> finishTransition(UpdateEvent event) {
-        return (result, ex) -> {
+    private BiConsumer<S, Throwable> finishTransition(UpdateEvent event, Session<V, T, S> session) {
+        return (newState, ex) -> {
             if (ex == null) {
-                Session<V, T, S> session = sessions.get(event.getUserId());
-                session.setState(result);
+                session.setState(newState);
                 session.setBusy(false);
             } else {
                 send(getStackTraceAsString(ex), event.getChatId());
             }
         };
+    }
+
+    public void init() {
+        init(directExecutor());
     }
 
     protected CompletableFuture<?> send(String text, Long chatId) {
