@@ -1,8 +1,9 @@
 package wordpackbot.dao
-import io.vertx.groovy.core.Future
 
-import static io.vertx.groovy.core.Future.succeededFuture
+import java.util.concurrent.CompletableFuture
+
 import static java.util.Collections.shuffle
+import static java.util.concurrent.CompletableFuture.completedFuture
 
 class StubPlaybackSourceDao implements PlaybackSourceDao {
 
@@ -14,11 +15,10 @@ class StubPlaybackSourceDao implements PlaybackSourceDao {
         this.random = random
     }
 
-    @SuppressWarnings(["GrUnresolvedAccess", "GroovyAssignabilityCheck"])
     @Override
-    Future<Collection<Collection<String>>> shuffled(Long userId, String wordPackName) {
+    CompletableFuture<Collection<Collection<String>>> shuffled(long userId, String wordPackName) {
         def source = [] + config.wordPacks[Long.toString(userId)][wordPackName].content
         shuffle source, random
-        succeededFuture source
+        completedFuture source
     }
 }
