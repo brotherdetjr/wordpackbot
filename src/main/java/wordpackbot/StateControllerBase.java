@@ -46,7 +46,7 @@ public abstract class StateControllerBase<V, T, S extends State<V, T, S>> {
         if (session == null) {
             initialState(event.getUserId()).whenComplete((result, ex) -> {
                 if (ex == null) {
-                    sessions.put(event.getUserId(), new Session<>(result));
+                    sessions.put(event.getUserId(), new Session<>(result, true));
                     transit(event, result);
                 } else {
                     send(getStackTraceAsString(ex), event.getChatId());
