@@ -2,7 +2,7 @@ package wordpackbot.dummy
 
 import groovy.util.logging.Log4j2
 import wordpackbot.Session
-import wordpackbot.VertxController
+import wordpackbot.StateControllerBase
 import wordpackbot.bots.ChatBot
 import wordpackbot.bots.UpdateEvent
 
@@ -12,7 +12,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture
 import static wordpackbot.dummy.DummyState.futureDummyState
 
 @Log4j2
-class DummyController extends VertxController<Integer, String, DummyState> {
+class DummyController extends StateControllerBase<Integer, Integer, DummyState> {
 
     private final int initialValue
 
@@ -25,7 +25,7 @@ class DummyController extends VertxController<Integer, String, DummyState> {
     protected CompletableFuture<DummyState> initialState(long userId) { futureDummyState initialValue }
 
     @Override
-    protected CompletableFuture<String> onUpdate(UpdateEvent event, DummyState state) {
+    protected CompletableFuture<Integer> onUpdate(UpdateEvent event, DummyState state) {
         def increment = Integer.parseInt(event.text)
         send Integer.toString(state.value + increment), event.chatId
         completedFuture increment

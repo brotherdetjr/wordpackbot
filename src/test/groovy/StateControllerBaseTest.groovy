@@ -1,8 +1,3 @@
-import io.vertx.core.Handler
-import io.vertx.groovy.core.Context
-import io.vertx.groovy.core.Future
-import io.vertx.groovy.core.Vertx
-import spock.lang.Shared
 import spock.lang.Specification
 import wordpackbot.bots.ChatBot
 import wordpackbot.bots.UpdateEvent
@@ -10,10 +5,9 @@ import wordpackbot.dummy.DummyController
 
 import java.util.concurrent.CompletableFuture
 
-import static io.vertx.groovy.core.Future.succeededFuture
 import static java.util.concurrent.CompletableFuture.completedFuture
 
-class VertxControllerTest extends Specification {
+class StateControllerBaseTest extends Specification {
 
     static final
             USER_1 = 2,
@@ -21,24 +15,18 @@ class VertxControllerTest extends Specification {
             CHAT_1 = 3,
             CHAT_2 = 30
 
-    @Shared
-        vertx = Mock(Vertx) {
-            getOrCreateContext() >> Mock(Context) {
-                runOnContext(_ as Handler<Void>) >> { Handler<Void> handler -> handler.handle null }
-            }
-        }
-
+    @SuppressWarnings("GroovyAccessibility")
     def 'DummyController sends incremented state to a proper chat'() {
         given:
         def sender = Mock(Sender)
         def bot = new ChatBot() {
             @Override
-            CompletableFuture<Object> send(String text, Long chatId) {
+            CompletableFuture<?> send(String text, Long chatId) {
                 sender.send text, chatId
                 completedFuture null
             }
         }
-        new DummyController(bot, [:], 29).init vertx
+        new DummyController(bot, [:], 29).init()
         when:
         bot.fire new UpdateEvent('4', USER_1, CHAT_1)
         then:

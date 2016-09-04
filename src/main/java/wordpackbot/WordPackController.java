@@ -10,7 +10,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-public class WordPackController extends VertxController<String, String, Playback> {
+public class WordPackController extends StateControllerBase<String, String, Playback> {
 
     private final StateFactory stateFactory;
 

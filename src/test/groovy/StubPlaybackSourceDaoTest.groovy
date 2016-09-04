@@ -28,7 +28,7 @@ wordPacks {
         given:
         def result = new BlockingVariable<List>()
         expect:
-        dao.shuffled(188589442L, 'тест').setHandler { result.set(it.result() as List) }
+        dao.shuffled(188589442L, 'тест').whenComplete { res, ex -> result.set(res as List) }
         result.get() == expected
         where:
         expected << [[

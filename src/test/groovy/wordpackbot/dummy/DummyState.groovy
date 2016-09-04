@@ -1,13 +1,12 @@
 package wordpackbot.dummy
 
-import sun.reflect.generics.scope.DummyScope
 import wordpackbot.states.State
 
 import java.util.concurrent.CompletableFuture
 
 import static java.util.concurrent.CompletableFuture.completedFuture
 
-class DummyState implements State<Integer, String, DummyState> {
+class DummyState implements State<Integer, Integer, DummyState> {
     private final int value
 
     DummyState(int value) { this.value = value }
@@ -20,7 +19,7 @@ class DummyState implements State<Integer, String, DummyState> {
     }
 
     @Override
-    CompletableFuture<DummyState> transit(String transition) {
-        futureDummyState(value + transition as int)
+    CompletableFuture<DummyState> transit(Integer transition) {
+        futureDummyState(value + transition)
     }
 }

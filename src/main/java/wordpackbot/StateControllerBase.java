@@ -1,6 +1,5 @@
 package wordpackbot;
 
-import io.vertx.core.Vertx;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import wordpackbot.bots.ChatBot;
@@ -9,20 +8,22 @@ import wordpackbot.states.State;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.BiConsumer;
 
 import static com.google.common.base.Throwables.getStackTraceAsString;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 @Log4j2
 @RequiredArgsConstructor
-public abstract class VertxController<V1, T1, S1 extends State<V1, T1, S1>> {
+public abstract class StateControllerBase<V, T, S extends State<V, T, S>> {
     private static final String NOT_SO_FAST_MESSAGE = "Wait, no so fast!";
 
     private final ChatBot bot;
-    private final Map<Long, Session<V1, T1, S1>> sessions;
+    private final Map<Long, Session<V, T, S>> sessions;
 
-    public void init(Vertx vertx) {
-        bot.onUpdate(event -> vertx.getOrCreateContext().runOnContext(ignore -> {
+    public void init(Executor executor) {
+        bot.onUpdate(event -> executor.execute(() -> {
             log.debug("Processing event {}", event);
             Session session = sessions.get(event.getUserId());
             if (session == null || !session.isBusy()) {
@@ -36,8 +37,12 @@ public abstract class VertxController<V1, T1, S1 extends State<V1, T1, S1>> {
         }));
     }
 
+    public void init() {
+        init(directExecutor());
+    }
+
     private void doUpdate(UpdateEvent event) {
-        Session<V1, T1, S1> session = sessions.get(event.getUserId());
+        Session<V, T, S> session = sessions.get(event.getUserId());
         if (session == null) {
             initialState(event.getUserId()).whenComplete((result, ex) -> {
                 if (ex == null) {
@@ -52,7 +57,7 @@ public abstract class VertxController<V1, T1, S1 extends State<V1, T1, S1>> {
         }
     }
 
-    private void transit(UpdateEvent event, S1 state) {
+    private void transit(UpdateEvent event, S state) {
         onUpdate(event, state).whenComplete((result, ex) -> {
             if (ex == null) {
                 state.transit(result).whenComplete(finishTransition(event));
@@ -62,10 +67,10 @@ public abstract class VertxController<V1, T1, S1 extends State<V1, T1, S1>> {
         });
     }
 
-    private BiConsumer<S1, Throwable> finishTransition(UpdateEvent event) {
+    private BiConsumer<S, Throwable> finishTransition(UpdateEvent event) {
         return (result, ex) -> {
             if (ex == null) {
-                Session<V1, T1, S1> session = sessions.get(event.getUserId());
+                Session<V, T, S> session = sessions.get(event.getUserId());
                 session.setState(result);
                 session.setBusy(false);
             } else {
@@ -78,8 +83,8 @@ public abstract class VertxController<V1, T1, S1 extends State<V1, T1, S1>> {
         return bot.send(text, chatId);
     }
 
-    protected abstract CompletableFuture<S1> initialState(long userId);
+    protected abstract CompletableFuture<S> initialState(long userId);
 
-    protected abstract CompletableFuture<T1> onUpdate(UpdateEvent event, S1 state);
+    protected abstract CompletableFuture<T> onUpdate(UpdateEvent event, S state);
 
 }
