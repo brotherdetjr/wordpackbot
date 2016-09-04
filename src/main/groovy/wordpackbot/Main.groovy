@@ -6,8 +6,8 @@ import wordpackbot.bots.TelegramBot
 import wordpackbot.dao.StubPlaybackSourceDao
 import wordpackbot.states.StateFactory
 
-import static io.vertx.core.Vertx.vertx
 import static java.lang.Thread.currentThread
+import static wordpackbot.VertxUtils.vertxExecutor
 
 @Log4j2
 class Main {
@@ -17,9 +17,7 @@ class Main {
         def stateFactory = new StateFactory(new StubPlaybackSourceDao(config))
         //noinspection GroovyAssignabilityCheck
         def bot = new TelegramBot(config.token, config.name).register(new TelegramBotsApi())
-        new WordPackController(bot, [:], stateFactory).init(
-                { runnable -> vertx().getOrCreateContext().runOnContext({ runnable.run() }) }
-        )
+        new WordPackController(bot, [:], stateFactory).init(vertxExecutor())
         log.info 'Started'
     }
 }
