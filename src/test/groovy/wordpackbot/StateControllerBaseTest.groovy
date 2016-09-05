@@ -1,12 +1,19 @@
+package wordpackbot
+
+import groovy.util.logging.Log4j2
 import spock.lang.Specification
+import spock.util.concurrent.BlockingVariable
 import wordpackbot.bots.ChatBot
 import wordpackbot.bots.UpdateEvent
 import wordpackbot.dummy.DummyController
 
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 import static java.util.concurrent.CompletableFuture.completedFuture
+import static wordpackbot.VertxUtils.vertxExecutor
 
+@Log4j2
 class StateControllerBaseTest extends Specification {
 
     static final
@@ -19,30 +26,42 @@ class StateControllerBaseTest extends Specification {
     def 'DummyController sends incremented state to a proper chat'() {
         given:
         def sender = Mock(Sender)
+        def results = [
+                '2:33' : new BlockingVariable<Boolean>(1, TimeUnit.HOURS),
+                '22:38': new BlockingVariable<Boolean>(1, TimeUnit.HOURS),
+                '2:42' : new BlockingVariable<Boolean>(1, TimeUnit.HOURS),
+                '22:40': new BlockingVariable<Boolean>(1, TimeUnit.HOURS)
+        ]
         def bot = new ChatBot() {
             @Override
             CompletableFuture<?> send(String text, Long chatId) {
+                log.debug "Sending '$text' to chat with id $chatId"
                 sender.send text, chatId
+                results[text].set true
                 completedFuture null
             }
         }
-        new DummyController(bot, [:], 29).init()
+        new DummyController(bot, [:], vertxExecutor(), 29).init()
         when:
         bot.fire new UpdateEvent('4', USER_1, CHAT_1)
+        results['2:33'].get()
         then:
-        1 * sender.send('33', CHAT_1)
+        1 * sender.send('2:33', CHAT_1)
         when:
         bot.fire new UpdateEvent('9', USER_2, CHAT_1)
+        results['22:38'].get()
         then:
-        1 * sender.send('38', CHAT_1)
+        1 * sender.send('22:38', CHAT_1)
         when:
         bot.fire new UpdateEvent('9', USER_1, CHAT_1)
+        results['2:42'].get()
         then:
-        1 * sender.send('42', CHAT_1)
+        1 * sender.send('2:42', CHAT_1)
         when:
         bot.fire new UpdateEvent('2', USER_2, CHAT_2)
+        results['22:40'].get()
         then:
-        1 * sender.send('40', CHAT_2)
+        1 * sender.send('22:40', CHAT_2)
     }
 
     interface Sender {

@@ -22,4 +22,7 @@ class DummyState implements State<Integer, Integer, DummyState> {
     CompletableFuture<DummyState> transit(Integer transition) {
         futureDummyState(value + transition)
     }
+
+    @Override
+    public String toString() { "DummyState{value=$value}" }
 }

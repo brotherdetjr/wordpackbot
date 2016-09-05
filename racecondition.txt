@@ -1,0 +1,48 @@
+[DEBUG] 2016-09-06 02:48:37.255 [main] ChatBot - Firing event: UpdateEvent(text=4, userId=2, chatId=3)
+[DEBUG] 2016-09-06 02:48:37.275 [vert.x-eventloop-thread-0] StateControllerBase - Received event UpdateEvent(text=4, userId=2, chatId=3)
+[DEBUG] 2016-09-06 02:48:37.329 [vert.x-eventloop-thread-0] StateControllerBase - No session for user {} yet. Creating a new one.
+[DEBUG] 2016-09-06 02:48:37.350 [vert.x-eventloop-thread-0] StateControllerBase - Set initial state for user 2: DummyState{value=29}
+[DEBUG] 2016-09-06 02:48:37.410 [vert.x-eventloop-thread-0] StateControllerBaseTest - Sending '2:33' to chat with id 3
+[DEBUG] 2016-09-06 02:48:37.427 [main] ChatBot - Firing event: UpdateEvent(text=9, userId=22, chatId=3)
+[DEBUG] 2016-09-06 02:48:37.427 [vert.x-eventloop-thread-1] StateControllerBase - Received event UpdateEvent(text=9, userId=22, chatId=3)
+[DEBUG] 2016-09-06 02:48:37.427 [vert.x-eventloop-thread-1] StateControllerBase - No session for user {} yet. Creating a new one.
+[DEBUG] 2016-09-06 02:48:37.428 [vert.x-eventloop-thread-1] StateControllerBase - Set initial state for user 22: DummyState{value=29}
+[DEBUG] 2016-09-06 02:48:37.428 [vert.x-eventloop-thread-1] StateControllerBaseTest - Sending '22:38' to chat with id 3
+[DEBUG] 2016-09-06 02:48:37.429 [main] ChatBot - Firing event: UpdateEvent(text=9, userId=2, chatId=3)
+[DEBUG] 2016-09-06 02:48:37.430 [vert.x-eventloop-thread-2] StateControllerBase - Received event UpdateEvent(text=9, userId=2, chatId=3)
+[DEBUG] 2016-09-06 02:48:37.430 [vert.x-eventloop-thread-2] StateControllerBase - Current state for user 2: DummyState{value=29}
+[DEBUG] 2016-09-06 02:48:37.430 [vert.x-eventloop-thread-2] StateControllerBaseTest - Sending '2:38' to chat with id 3
+[DEBUG] 2016-09-06 02:48:37.431 [vert.x-eventloop-thread-0] StateControllerBase - Set new state for user 2: DummyState{value=33}. Releasing the session lock.
+[DEBUG] 2016-09-06 02:48:37.431 [vert.x-eventloop-thread-1] StateControllerBase - Set new state for user 22: DummyState{value=38}. Releasing the session lock.
+Sep 06, 2016 2:48:37 AM io.vertx.core.impl.ContextImpl
+SEVERE: Unhandled exception
+java.lang.NullPointerException: Cannot invoke method set() on null object
+	at org.codehaus.groovy.runtime.NullObject.invokeMethod(NullObject.java:91)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaClassSite.call(PogoMetaClassSite.java:48)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:48)
+	at org.codehaus.groovy.runtime.callsite.NullCallSite.call(NullCallSite.java:35)
+	at org.codehaus.groovy.runtime.callsite.CallSiteArray.defaultCall(CallSiteArray.java:48)
+	at spock.util.concurrent.BlockingVariable$set$0.call(Unknown Source)
+	at wordpackbot.StateControllerBaseTest$1.send(StateControllerBaseTest.groovy:40)
+	at wordpackbot.StateControllerBase.send(StateControllerBase.java:100)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite$PogoCachedMethodSiteNoUnwrap.invoke(PogoMetaMethodSite.java:190)
+	at org.codehaus.groovy.runtime.callsite.PogoMetaMethodSite.callCurrent(PogoMetaMethodSite.java:59)
+	at org.codehaus.groovy.runtime.callsite.AbstractCallSite.callCurrent(AbstractCallSite.java:174)
+	at wordpackbot.dummy.DummyController.onUpdate(DummyController.groovy:33)
+	at wordpackbot.dummy.DummyController.onUpdate(DummyController.groovy)
+	at wordpackbot.StateControllerBase.process(StateControllerBase.java:78)
+	at wordpackbot.StateControllerBase.processIfNotBusy(StateControllerBase.java:53)
+	at wordpackbot.StateControllerBase.lambda$null$0(StateControllerBase.java:38)
+	at wordpackbot.StateControllerBase$$Lambda$6/1990385139.run(Unknown Source)
+	at wordpackbot.VertxUtils.lambda$null$0(VertxUtils.java:14)
+	at wordpackbot.VertxUtils$$Lambda$8/93054696.handle(Unknown Source)
+	at io.vertx.core.impl.ContextImpl.lambda$wrapTask$18(ContextImpl.java:335)
+	at io.vertx.core.impl.ContextImpl$$Lambda$9/242282810.run(Unknown Source)
+	at io.netty.util.concurrent.SingleThreadEventExecutor.runAllTasks(SingleThreadEventExecutor.java:358)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:357)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$2.run(SingleThreadEventExecutor.java:112)
+	at java.lang.Thread.run(Thread.java:744)

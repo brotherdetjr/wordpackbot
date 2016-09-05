@@ -17,7 +17,7 @@ class Main {
         def stateFactory = new StateFactory(new StubPlaybackSourceDao(config))
         //noinspection GroovyAssignabilityCheck
         def bot = new TelegramBot(config.token, config.name).register(new TelegramBotsApi())
-        new WordPackController(bot, [:], stateFactory).init(vertxExecutor())
+        new WordPackController(bot, [:], vertxExecutor(), stateFactory).init()
         log.info 'Started'
     }
 }

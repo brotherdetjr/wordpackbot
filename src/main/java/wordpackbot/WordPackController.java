@@ -7,6 +7,7 @@ import wordpackbot.states.StateFactory;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
@@ -16,8 +17,9 @@ public class WordPackController extends StateControllerBase<String, String, Play
 
     public WordPackController(ChatBot bot,
                               Map<Long, Session<String, String, Playback>> sessions,
+                              Executor executor,
                               StateFactory stateFactory) {
-        super(bot, sessions);
+        super(bot, sessions, executor);
         this.stateFactory = stateFactory;
     }
 

@@ -1,3 +1,5 @@
+package wordpackbot
+
 import spock.lang.Specification
 
 

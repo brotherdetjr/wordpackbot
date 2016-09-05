@@ -9,9 +9,6 @@
         <Logger name="wordpackbot" level="trace" additivity="false">
             <AppenderRef ref="console"/>
         </Logger>
-        <Logger name="wordpackbot.dummy" level="trace" additivity="false">
-            <AppenderRef ref="console"/>
-        </Logger>
         <Root level="info" additivity="false">
             <AppenderRef ref="console"/>
         </Root>
