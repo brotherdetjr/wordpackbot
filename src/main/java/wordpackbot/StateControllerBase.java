@@ -34,7 +34,7 @@ public abstract class StateControllerBase<V, T, S extends State<V, T, S>> {
                 lock.lock();
                 Session<V, T, S> session = sessions.get(userId);
                 if (session != null) {
-                    log.debug("Current state for user {}: {}", userId, session.getState());
+                    log.debug("Current session for user {}: {}", userId, session);
                     processIfNotBusy(event);
                 } else {
                     log.debug("No session for user {} yet. Creating a new one.");
@@ -57,14 +57,20 @@ public abstract class StateControllerBase<V, T, S extends State<V, T, S>> {
     }
 
     private Session<V, T, S> initSessionAndProcess(UpdateEvent event) {
-        Session<V, T, S> session = new Session<>(null, false);
+        Session<V, T, S> session = new Session<>(null, true);
         long userId = event.getUserId();
         sessions.put(userId, session);
         initialState(userId).whenComplete((result, ex) -> executor.execute(() -> {
             if (ex == null) {
-                session.setState(result);
-                log.debug("Set initial state for user {}: {}", userId, result);
-                process(event, session);
+                Lock lock = striped.get(userId);
+                try {
+                    lock.lock();
+                    session.setState(result);
+                    log.debug("Set initial state for user {}: {}", userId, result);
+                    process(event, session);
+                } finally {
+                    lock.unlock();
+                }
             } else {
                 sessions.remove(userId);
                 send(getStackTraceAsString(ex), event.getChatId());
@@ -87,9 +93,16 @@ public abstract class StateControllerBase<V, T, S extends State<V, T, S>> {
     private BiConsumer<S, Throwable> finishTransition(UpdateEvent event, Session<V, T, S> session) {
         return (newState, ex) -> {
             if (ex == null) {
-                session.setState(newState);
-                session.setBusy(false);
-                log.debug("Set new state for user {}: {}. Releasing the session lock.", event.getUserId(), newState);
+                Long userId = event.getUserId();
+                Lock lock = striped.get(userId);
+                try {
+                    lock.lock();
+                    session.setState(newState);
+                    session.setBusy(false);
+                    log.debug("Set new state for user {}: {}. Releasing the session lock.", userId, newState);
+                } finally {
+                    lock.unlock();
+                }
             } else {
                 send(getStackTraceAsString(ex), event.getChatId());
             }
