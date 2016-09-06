@@ -5,18 +5,16 @@ import wordpackbot.bots.UpdateEvent;
 import wordpackbot.states.Playback;
 import wordpackbot.states.StateFactory;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-import static java.util.concurrent.CompletableFuture.completedFuture;
-
-public class WordPackController extends StateControllerBase<String, String, Playback> {
+public class WordPackController extends StateControllerBase<Playback> {
 
     private final StateFactory stateFactory;
 
     public WordPackController(ChatBot bot,
-                              Map<Long, Session<String, String, Playback>> sessions,
+                              ConcurrentMap<Long, Session<Playback>> sessions,
                               Executor executor,
                               StateFactory stateFactory) {
         super(bot, sessions, executor);
@@ -29,8 +27,12 @@ public class WordPackController extends StateControllerBase<String, String, Play
     }
 
     @Override
-    protected CompletableFuture<String> onUpdate(UpdateEvent event, Playback state) {
-        send(state.getValue(), event.getChatId());
-        return completedFuture("next");
+    protected CompletableFuture<Playback> onUpdate(UpdateEvent event, Playback state) {
+        return state.next();
+    }
+
+    @Override
+    protected void afterTransition(AfterTransitionContext<Playback> context) {
+        context.send(context.getNewState().getValue(), context.getEvent().getChatId());
     }
 }

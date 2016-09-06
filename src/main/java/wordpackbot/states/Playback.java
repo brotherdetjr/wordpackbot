@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 @RequiredArgsConstructor
-public class Playback implements State<String, String, Playback> {
+public class Playback {
 
     @SuppressWarnings("RedundantStringConstructorCall")
     public final static String END_OF_ENTRY = new String();
@@ -19,8 +19,7 @@ public class Playback implements State<String, String, Playback> {
     private final Iterator<String> entryIterator;
     private final Supplier<CompletableFuture<Playback>> onFinish;
 
-    @Override
-    public CompletableFuture<Playback> transit(String transition) {
+    public CompletableFuture<Playback> next() {
         String value = entryIterator.next();
         if (END_OF_ENTRY.equals(value)) {
             value = entryIterator.hasNext() ? entryIterator.next() : null;

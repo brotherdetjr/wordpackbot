@@ -8,9 +8,13 @@ import wordpackbot.bots.UpdateEvent
 import wordpackbot.dummy.DummyController
 
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
+import static com.google.common.collect.Maps.newConcurrentMap
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor
 import static java.util.concurrent.CompletableFuture.completedFuture
+import static java.util.concurrent.Executors.newFixedThreadPool
 import static wordpackbot.VertxUtils.vertxExecutor
 
 @Log4j2
@@ -41,7 +45,7 @@ class StateControllerBaseTest extends Specification {
                 completedFuture null
             }
         }
-        new DummyController(bot, [:], vertxExecutor(), 29).init()
+        new DummyController(bot, newConcurrentMap(), newFixedThreadPool(5), 29).init()
         when:
         bot.fire new UpdateEvent('4', USER_1, CHAT_1)
         results['2:33'].get()

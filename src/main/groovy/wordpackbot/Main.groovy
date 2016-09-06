@@ -6,6 +6,7 @@ import wordpackbot.bots.TelegramBot
 import wordpackbot.dao.StubPlaybackSourceDao
 import wordpackbot.states.StateFactory
 
+import static com.google.common.collect.Maps.newConcurrentMap
 import static java.lang.Thread.currentThread
 import static wordpackbot.VertxUtils.vertxExecutor
 
@@ -17,7 +18,7 @@ class Main {
         def stateFactory = new StateFactory(new StubPlaybackSourceDao(config))
         //noinspection GroovyAssignabilityCheck
         def bot = new TelegramBot(config.token, config.name).register(new TelegramBotsApi())
-        new WordPackController(bot, [:], vertxExecutor(), stateFactory).init()
+        new WordPackController(bot, newConcurrentMap(), vertxExecutor(), stateFactory).init()
         log.info 'Started'
     }
 }

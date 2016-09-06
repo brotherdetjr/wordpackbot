@@ -1,27 +1,28 @@
 package wordpackbot;
 
 import com.google.common.util.concurrent.Striped;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import wordpackbot.bots.ChatBot;
 import wordpackbot.bots.UpdateEvent;
-import wordpackbot.states.State;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import static com.google.common.base.Throwables.getStackTraceAsString;
 
 @Log4j2
 @RequiredArgsConstructor
-public abstract class StateControllerBase<V, T, S extends State<V, T, S>> {
+public abstract class StateControllerBase<S> {
     private static final String NOT_SO_FAST_MESSAGE = "Wait, no so fast!";
 
     private final ChatBot bot;
-    private final Map<Long, Session<V, T, S>> sessions;
+    private final ConcurrentMap<Long, Session<S>> sessions;
     private final Executor executor;
     private final Striped<Lock> striped = Striped.lock(1000);
 
@@ -29,10 +30,7 @@ public abstract class StateControllerBase<V, T, S extends State<V, T, S>> {
         bot.onUpdate(event -> executor.execute(() -> {
             log.debug("Received event {}", event);
             Long userId = event.getUserId();
-            Lock lock = striped.get(userId);
-            try {
-                lock.lock();
-                Session<V, T, S> session = sessions.get(userId);
+            synched(userId, session -> {
                 if (session != null) {
                     log.debug("Current session for user {}: {}", userId, session);
                     processIfNotBusy(event);
@@ -40,81 +38,79 @@ public abstract class StateControllerBase<V, T, S extends State<V, T, S>> {
                     log.debug("No session for user {} yet. Creating a new one.");
                     initSessionAndProcess(event);
                 }
-            } finally {
-                lock.unlock();
-            }
+            });
         }));
     }
 
     private void processIfNotBusy(UpdateEvent event) {
-        Session<V, T, S> session = sessions.get(event.getUserId());
+        Session<S> session = sessions.get(event.getUserId());
         if (!session.isBusy()) {
             session.setBusy(true);
             process(event, session);
         } else {
-            send(NOT_SO_FAST_MESSAGE, event.getChatId());
+            bot.send(NOT_SO_FAST_MESSAGE, event.getChatId());
         }
     }
 
-    private Session<V, T, S> initSessionAndProcess(UpdateEvent event) {
-        Session<V, T, S> session = new Session<>(null, true);
+    private Session<S> initSessionAndProcess(UpdateEvent event) {
+        Session<S> session = new Session<>(null, true);
         long userId = event.getUserId();
         sessions.put(userId, session);
         initialState(userId).whenComplete((result, ex) -> executor.execute(() -> {
             if (ex == null) {
-                Lock lock = striped.get(userId);
-                try {
-                    lock.lock();
-                    session.setState(result);
-                    log.debug("Set initial state for user {}: {}", userId, result);
-                    process(event, session);
-                } finally {
-                    lock.unlock();
-                }
+                session.setState(result);
+                log.debug("Set initial state for user {}: {}", userId, result);
+                process(event, session);
             } else {
                 sessions.remove(userId);
-                send(getStackTraceAsString(ex), event.getChatId());
+                bot.send(getStackTraceAsString(ex), event.getChatId());
             }
         }));
         return session;
     }
 
-    private void process(UpdateEvent event, Session<V, T, S> session) {
+    private void process(UpdateEvent event, Session<S> session) {
         S state = session.getState();
-        onUpdate(event, state).whenComplete((transition, ex) -> executor.execute(() -> {
+        onUpdate(event, state).whenComplete((newState, ex) -> executor.execute(() -> {
             if (ex == null) {
-                state.transit(transition).whenComplete(finishTransition(event, session));
+                Long userId = event.getUserId();
+                synched(userId, sameSession -> {
+                    session.setState(newState);
+                    session.setBusy(false);
+                    log.debug("Set new state for user {}: {}", userId, newState);
+                    afterTransition(new AfterTransitionContext<>(state, newState, event, bot::send));
+                });
             } else {
-                send(getStackTraceAsString(ex), event.getChatId());
+                bot.send(getStackTraceAsString(ex), event.getChatId());
             }
         }));
     }
 
-    private BiConsumer<S, Throwable> finishTransition(UpdateEvent event, Session<V, T, S> session) {
-        return (newState, ex) -> {
-            if (ex == null) {
-                Long userId = event.getUserId();
-                Lock lock = striped.get(userId);
-                try {
-                    lock.lock();
-                    session.setState(newState);
-                    session.setBusy(false);
-                    log.debug("Set new state for user {}: {}. Releasing the session lock.", userId, newState);
-                } finally {
-                    lock.unlock();
-                }
-            } else {
-                send(getStackTraceAsString(ex), event.getChatId());
-            }
-        };
-    }
-
-    protected CompletableFuture<?> send(String text, Long chatId) {
-        return bot.send(text, chatId);
+    private void synched(Long userId, Consumer<Session<S>> consumer) {
+        Lock lock = striped.get(userId);
+        try {
+            lock.lock();
+            consumer.accept(sessions.get(userId));
+        } finally {
+            lock.unlock();
+        }
     }
 
     protected abstract CompletableFuture<S> initialState(long userId);
 
-    protected abstract CompletableFuture<T> onUpdate(UpdateEvent event, S state);
+    protected abstract CompletableFuture<S> onUpdate(UpdateEvent event, S state);
 
+    protected abstract void afterTransition(AfterTransitionContext<S> context);
+
+    @RequiredArgsConstructor
+    public static class AfterTransitionContext<S> {
+        @Getter private final S oldState;
+        @Getter private final S newState;
+        @Getter private final UpdateEvent event;
+        private final BiConsumer<String, Long> sender;
+
+        public void send(String text, Long chatId) {
+            sender.accept(text, chatId);
+        }
+    }
 }
