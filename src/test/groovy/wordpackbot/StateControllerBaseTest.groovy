@@ -8,14 +8,10 @@ import wordpackbot.bots.UpdateEvent
 import wordpackbot.dummy.DummyController
 
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 import static com.google.common.collect.Maps.newConcurrentMap
-import static com.google.common.util.concurrent.MoreExecutors.directExecutor
 import static java.util.concurrent.CompletableFuture.completedFuture
 import static java.util.concurrent.Executors.newFixedThreadPool
-import static wordpackbot.VertxUtils.vertxExecutor
 
 @Log4j2
 class StateControllerBaseTest extends Specification {
@@ -31,10 +27,10 @@ class StateControllerBaseTest extends Specification {
         given:
         def sender = Mock(Sender)
         def results = [
-                '2:33' : new BlockingVariable<Boolean>(1, TimeUnit.HOURS),
-                '22:38': new BlockingVariable<Boolean>(1, TimeUnit.HOURS),
-                '2:42' : new BlockingVariable<Boolean>(1, TimeUnit.HOURS),
-                '22:40': new BlockingVariable<Boolean>(1, TimeUnit.HOURS)
+                '2:33' : new BlockingVariable<Boolean>(),
+                '22:38': new BlockingVariable<Boolean>(),
+                '2:42' : new BlockingVariable<Boolean>(),
+                '22:40': new BlockingVariable<Boolean>()
         ]
         def bot = new ChatBot() {
             @Override
