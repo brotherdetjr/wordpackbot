@@ -33,6 +33,6 @@ public class WordPackController extends StateControllerBase<Playback> {
 
     @Override
     protected void afterTransition(AfterTransitionContext<Playback> context) {
-        context.send(context.getNewState().getValue(), context.getEvent().getChatId());
+        context.send(context.getOldState().getValue(), context.getEvent().getChatId());
     }
 }

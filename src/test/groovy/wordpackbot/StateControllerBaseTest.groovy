@@ -7,6 +7,7 @@ import spock.util.concurrent.BlockingVariable
 import wordpackbot.bots.ChatBot
 import wordpackbot.bots.UpdateEvent
 import wordpackbot.dummy.DummyController
+import wordpackbot.dummy.Sender
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executor
@@ -16,9 +17,9 @@ import static com.google.common.util.concurrent.MoreExecutors.directExecutor
 import static java.lang.Integer.parseInt
 import static java.util.concurrent.CompletableFuture.completedFuture
 import static java.util.concurrent.Executors.newFixedThreadPool
-import static java.util.concurrent.TimeUnit.SECONDS
 import static wordpackbot.StateControllerBase.NOT_SO_FAST_MESSAGE
 import static wordpackbot.VertxUtils.vertxExecutor
+import static wordpackbot.dummy.TestUtils.blockingVar
 
 @Log4j2
 class StateControllerBaseTest extends Specification {
@@ -123,14 +124,6 @@ class StateControllerBaseTest extends Specification {
         1 * sender.send('2:31', CHAT_1)
         where:
         executorName << EXECUTORS.keySet()
-    }
-
-    def BlockingVariable<Boolean> blockingVar() {
-        new BlockingVariable<Boolean>(5, SECONDS)
-    }
-
-    interface Sender {
-        void send(String text, Long chatId)
     }
 
     class LongRunningService {

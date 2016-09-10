@@ -26,4 +26,11 @@ public class Playback {
         }
         return value != null ? completedFuture(new Playback(value, entryIterator, onFinish)) : onFinish.get();
     }
+
+    @Override
+    public String toString() {
+        return "Playback{" +
+                "value='" + value + '\'' +
+                '}';
+    }
 }
