@@ -1,8 +1,8 @@
 package wordpackbot
 
 import groovy.util.logging.Log4j2
-import spock.lang.Shared
 import spock.lang.Specification
+import spock.util.concurrent.BlockingVariables
 import wordpackbot.bots.ChatBot
 import wordpackbot.bots.UpdateEvent
 import wordpackbot.dao.StubPlaybackSourceDao
@@ -14,7 +14,6 @@ import java.util.concurrent.CompletableFuture
 import static com.google.common.collect.Maps.newConcurrentMap
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor
 import static java.util.concurrent.CompletableFuture.completedFuture
-import static wordpackbot.dummy.TestUtils.blockingVar
 
 @Log4j2
 class WordPackControllerTest extends Specification {
@@ -25,8 +24,10 @@ class WordPackControllerTest extends Specification {
             CHAT_1 = 3,
             CHAT_2 = 30
 
-    @Shared
-            config = new ConfigSlurper().parse('''
+    @SuppressWarnings("GroovyAccessibility")
+    def 'WordPackController sends proper words.'() {
+        given:
+        def config = new ConfigSlurper().parse('''
 wordPacks {
     '2' {
         'тест' {
@@ -45,101 +46,83 @@ wordPacks {
         }
     }
 }''')
-
-    @Shared
-            stateFactory = new StateFactory(new StubPlaybackSourceDao(config, new Random(0)))
-
-    @Shared
-            results = [
-                    'осёл'   : blockingVar(), 'ass': blockingVar(), "эсс": blockingVar(),
-                    'собачка': blockingVar(), 'doggy': blockingVar(), "'доги": blockingVar(),
-                    'киска'  : blockingVar(), 'pussy': blockingVar(), "'паси": blockingVar(),
-                    'птичка' : blockingVar(), 'birdy': blockingVar()
-            ]
-
-    @SuppressWarnings("GroovyAccessibility")
-    def 'WordPackController sends proper words.'() {
-        given:
+        def stateFactory = new StateFactory(new StubPlaybackSourceDao(config, new Random(0)))
+        def barriers = new BlockingVariables(5)
         def sender = Mock(Sender)
         def bot = new ChatBot() {
             @Override
             CompletableFuture<?> send(String text, Long chatId) {
                 log.debug "Sending '$text' to chat with id $chatId"
                 sender.send text, chatId
-                results[text].set true
+                barriers.setProperty text, true
                 completedFuture null
             }
         }
         new WordPackController(bot, newConcurrentMap(), directExecutor(), stateFactory).init()
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor 'собачка'
+        barriers.getProperty 'собачка'
         then:
         1 * sender.send('собачка', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_2, CHAT_2)
-        waitFor 'осёл'
+        barriers.getProperty 'осёл'
         then:
         1 * sender.send('осёл', CHAT_2)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor 'doggy'
+        barriers.getProperty 'doggy'
         then:
         1 * sender.send('doggy', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor "'доги"
+        barriers.getProperty "'доги"
         then:
         1 * sender.send("'доги", CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor 'киска'
+        barriers.getProperty 'киска'
         then:
         1 * sender.send('киска', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor 'pussy'
+        barriers.getProperty 'pussy'
         then:
         1 * sender.send('pussy', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor "'паси"
+        barriers.getProperty "'паси"
         then:
         1 * sender.send("'паси", CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor 'птичка'
+        barriers.getProperty 'птичка'
         then:
         1 * sender.send('птичка', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor 'birdy'
+        barriers.getProperty 'birdy'
         then:
         1 * sender.send('birdy', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_2, CHAT_2)
-        waitFor 'ass'
+        barriers.getProperty 'ass'
         then:
         1 * sender.send('ass', CHAT_2)
         when:
         bot.fire new UpdateEvent('whatever', USER_2, CHAT_2)
-        waitFor 'эсс'
+        barriers.getProperty 'эсс'
         then:
         1 * sender.send('эсс', CHAT_2)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor 'птичка'
+        barriers.getProperty 'птичка'
         then:
         1 * sender.send('птичка', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        waitFor 'birdy'
+        barriers.getProperty 'birdy'
         then:
         1 * sender.send('birdy', CHAT_1)
-    }
-
-    def waitFor(String key) {
-        results[key].get()
-        results[key] = blockingVar()
     }
 }
