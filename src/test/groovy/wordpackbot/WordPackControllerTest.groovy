@@ -33,7 +33,7 @@ wordPacks {
         'тест' {
             content = [
                     ['птичка', 'birdy'],
-                    ['киска', 'pussy', "'паси"],
+                    ['киска', 'kitty', "'кити"],
                     ['собачка', 'doggy', "'доги"]
             ]
         }
@@ -41,7 +41,7 @@ wordPacks {
     '22' {
         'тест' {
             content = [
-                    ['осёл', 'ass', "эсс"],
+                    ['осёл', 'donkey', "'данки"],
             ]
         }
     }
@@ -86,14 +86,14 @@ wordPacks {
         1 * sender.send('киска', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        barriers.getProperty 'pussy'
+        barriers.getProperty 'kitty'
         then:
-        1 * sender.send('pussy', CHAT_1)
+        1 * sender.send('kitty', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
-        barriers.getProperty "'паси"
+        barriers.getProperty "'кити"
         then:
-        1 * sender.send("'паси", CHAT_1)
+        1 * sender.send("'кити", CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
         barriers.getProperty 'птичка'
@@ -106,14 +106,14 @@ wordPacks {
         1 * sender.send('birdy', CHAT_1)
         when:
         bot.fire new UpdateEvent('whatever', USER_2, CHAT_2)
-        barriers.getProperty 'ass'
+        barriers.getProperty 'donkey'
         then:
-        1 * sender.send('ass', CHAT_2)
+        1 * sender.send('donkey', CHAT_2)
         when:
         bot.fire new UpdateEvent('whatever', USER_2, CHAT_2)
-        barriers.getProperty 'эсс'
+        barriers.getProperty "'данки"
         then:
-        1 * sender.send('эсс', CHAT_2)
+        1 * sender.send("'данки", CHAT_2)
         when:
         bot.fire new UpdateEvent('whatever', USER_1, CHAT_1)
         barriers.getProperty 'птичка'
