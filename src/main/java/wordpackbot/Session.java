@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @AllArgsConstructor
 @ToString
-public class Session<S> {
-    private volatile S state;
+public class Session {
+    private volatile Object state;
     private volatile boolean busy;
 }

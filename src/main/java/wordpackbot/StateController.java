@@ -1,7 +1,6 @@
 package wordpackbot;
 
 import com.google.common.util.concurrent.Striped;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import wordpackbot.bots.ChatBot;
@@ -11,14 +10,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import static com.google.common.base.Throwables.getStackTraceAsString;
 
 @Log4j2
 @RequiredArgsConstructor
-public abstract class StateControllerBase<S> {
+public abstract class StateController<S> {
     private static final String NOT_SO_FAST_MESSAGE = "Wait, no so fast!";
 
     private final ChatBot bot;
@@ -78,7 +76,7 @@ public abstract class StateControllerBase<S> {
                     session.setState(newState);
                     session.setBusy(false);
                     log.debug("Set new state for user {}: {}", userId, newState);
-                    afterTransition(new AfterTransitionContext<>(state, newState, event, bot::send));
+                    afterTransition(new RenderContext<>(state, newState, event, bot::send));
                 });
             } else {
                 bot.send(getStackTraceAsString(ex), event.getChatId());
@@ -100,17 +98,6 @@ public abstract class StateControllerBase<S> {
 
     protected abstract CompletableFuture<S> onUpdate(UpdateEvent event, S state);
 
-    protected abstract void afterTransition(AfterTransitionContext<S> context);
+    protected abstract void afterTransition(RenderContext<S> context);
 
-    @RequiredArgsConstructor
-    public static class AfterTransitionContext<S> {
-        @Getter private final S oldState;
-        @Getter private final S newState;
-        @Getter private final UpdateEvent event;
-        private final BiConsumer<String, Long> sender;
-
-        public void send(String text, Long chatId) {
-            sender.accept(text, chatId);
-        }
-    }
 }

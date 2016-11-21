@@ -18,11 +18,11 @@ import static com.google.common.util.concurrent.MoreExecutors.directExecutor
 import static java.lang.Integer.parseInt
 import static java.util.concurrent.CompletableFuture.completedFuture
 import static java.util.concurrent.Executors.newFixedThreadPool
-import static wordpackbot.StateControllerBase.NOT_SO_FAST_MESSAGE
+import static StateController.NOT_SO_FAST_MESSAGE
 import static wordpackbot.VertxUtils.vertxExecutor
 
 @Log4j2
-class StateControllerBaseTest extends Specification {
+class StateControllerTest extends Specification {
 
     static final
             USER_1 = 2,

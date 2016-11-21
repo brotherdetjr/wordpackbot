@@ -1,9 +1,9 @@
 package wordpackbot.dummy
 
 import groovy.util.logging.Log4j2
+import wordpackbot.RenderContext
 import wordpackbot.Session
-import wordpackbot.StateControllerBase
-import wordpackbot.StateControllerBase.AfterTransitionContext
+import wordpackbot.StateController
 import wordpackbot.bots.ChatBot
 import wordpackbot.bots.UpdateEvent
 
@@ -15,7 +15,7 @@ import static java.lang.Integer.parseInt
 import static java.util.concurrent.CompletableFuture.completedFuture
 
 @Log4j2
-class DummyController extends StateControllerBase<Integer> {
+class DummyController extends StateController<Integer> {
 
     private final int initialValue
 
@@ -35,7 +35,7 @@ class DummyController extends StateControllerBase<Integer> {
     }
 
     @Override
-    protected void afterTransition(AfterTransitionContext<Integer> context) {
+    protected void afterTransition(RenderContext<Integer> context) {
         context.send "$context.event.userId:$context.newState", context.event.chatId
     }
 }

@@ -9,7 +9,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 
-public class WordPackController extends StateControllerBase<Playback> {
+public class WordPackController extends StateController<Playback> {
 
     private final StateFactory stateFactory;
 
@@ -32,7 +32,7 @@ public class WordPackController extends StateControllerBase<Playback> {
     }
 
     @Override
-    protected void afterTransition(AfterTransitionContext<Playback> context) {
+    protected void afterTransition(RenderContext<Playback> context) {
         context.send(context.getOldState().getValue(), context.getEvent().getChatId());
     }
 }
