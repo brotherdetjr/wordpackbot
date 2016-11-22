@@ -9,6 +9,7 @@ import wordpackbot.states.StateFactory
 
 import static java.lang.Thread.currentThread
 import static wordpackbot.VertxUtils.vertxExecutor
+import static wordpackbot.ViewNameAndState.vs
 
 @Log4j2
 class Main {
@@ -23,7 +24,7 @@ class Main {
 			.controller(
 				Playback,
 				{ event, playback ->
-					(++playback).thenApply { new ViewNameAndState<>(Playback, it) }
+					(++playback).thenApply { vs Playback, it }
 				}
 			)
 			.view(Playback, { it.send it.newState.value })

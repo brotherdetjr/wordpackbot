@@ -9,7 +9,12 @@ public class ViewNameAndState<S> {
 	private final String name;
 	private final S state;
 
-	public ViewNameAndState(Class<S> probe, S state) {
-		this(probe.getSimpleName(), state);
+	public static <S> ViewNameAndState<S> vs(String name, S state) {
+		return new ViewNameAndState<>(name, state);
 	}
+
+	public static <S> ViewNameAndState<S> vs(Class<S> probe, S state) {
+		return vs(probe.getSimpleName(), state);
+	}
+
 }
