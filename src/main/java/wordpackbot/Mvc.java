@@ -6,20 +6,28 @@ import lombok.extern.log4j.Log4j2;
 import wordpackbot.bots.ChatBot;
 import wordpackbot.bots.UpdateEvent;
 
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
+
+import static com.google.common.collect.Maps.newConcurrentMap;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 @Log4j2
 @RequiredArgsConstructor
-public abstract class Mvc {
+public class Mvc {
 	private final ChatBot bot;
 	private final Dispatcher dispatcher;
 	private final View<IllegalStateException> notSoFastView;
 	private final View<Throwable> failView;
-	private final ConcurrentMap<Long, Session> sessions;
 	private final Executor executor;
+	private final ConcurrentMap<Long, Session> sessions;
 	private final Striped<Lock> striped = Striped.lock(1000);
 
 	public void init() {
@@ -68,6 +76,14 @@ public abstract class Mvc {
 
 	private void process(UpdateEvent event, Session session) {
 		Object state = session.getState();
+		try {
+			processUnsafe(event, session, state);
+		} catch (Exception ex) {
+			failView.render(new RenderContext<>(state, ex, event, textSender(event.getChatId())));
+		}
+	}
+
+	private void processUnsafe(UpdateEvent event, Session session, Object state) {
 		dispatcher
 			.dispatch(event, state)
 			.transit(event, state)
@@ -102,5 +118,74 @@ public abstract class Mvc {
 
 	private Consumer<String> textSender(Long chatId) {
 		return text -> bot.send(text, chatId);
+	}
+
+	@RequiredArgsConstructor
+	public static class Builder {
+		private final ChatBot bot;
+		private Map<String, View<?>> views = newHashMap();
+		private Map<Class<?>, Controller<?, ?>> controllers = newHashMap();
+		private View<IllegalStateException> notSoFastView = FailView.getInstance();
+		private View<Throwable> failView = FailView.getInstance();
+		private Executor executor = directExecutor();
+		private ConcurrentMap<Long, Session> sessions = newConcurrentMap();
+		private Controller<?, ?> initial;
+
+		public <O, N> Builder controller(Class<O> probe, Controller<O, N> controller) {
+			controllers.put(probe, controller);
+			return this;
+		}
+
+		public <O, N> Builder controller(
+			Class<O> probe,
+			BiFunction<UpdateEvent, O, CompletableFuture<ViewNameAndState<N>>> function) {
+			return controller(probe, new ControllerImpl<>(function, views));
+		}
+
+		public <O, N> Builder initial(Controller<O, N> initial) {
+			this.initial = initial;
+			return this;
+		}
+
+		public <N> Builder initial(
+			Function<UpdateEvent, CompletableFuture<ViewNameAndState<N>>> function) {
+			return initial(new InitialController<>(function, views));
+		}
+
+		public <N> Builder view(String name, View<N> view) {
+			views.put(name, view);
+			return this;
+		}
+
+		public Builder notSoFastView(View<IllegalStateException> notSoFastView) {
+			this.notSoFastView = notSoFastView;
+			return this;
+		}
+
+		public Builder failView(View<Throwable> failView) {
+			this.failView = failView;
+			return this;
+		}
+
+		public Builder executor(Executor executor) {
+			this.executor = executor;
+			return this;
+		}
+
+		public Builder sessions(ConcurrentMap<Long, Session> sessions) {
+			this.sessions = sessions;
+			return null;
+		}
+
+		public Mvc build() {
+			return new Mvc(
+				bot,
+				new DispatcherImpl(controllers, initial),
+				notSoFastView,
+				failView,
+				executor,
+				sessions
+			);
+		}
 	}
 }
