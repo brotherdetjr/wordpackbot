@@ -131,7 +131,7 @@ public class Mvc {
 		private ConcurrentMap<Long, Session> sessions = newConcurrentMap();
 		private Controller<?, ?> initial;
 
-		public <O, N> Builder controller(Class<O> probe, Controller<O, N> controller) {
+		public <O, N> Builder rawController(Class<O> probe, Controller<O, N> controller) {
 			controllers.put(probe, controller);
 			return this;
 		}
@@ -139,7 +139,7 @@ public class Mvc {
 		public <O, N> Builder controller(
 			Class<O> probe,
 			BiFunction<UpdateEvent, O, CompletableFuture<ViewNameAndState<N>>> function) {
-			return controller(probe, new ControllerImpl<>(function, views));
+			return rawController(probe, new ControllerImpl<>(function, views));
 		}
 
 		public <O, N> Builder initial(Controller<O, N> initial) {
@@ -147,14 +147,31 @@ public class Mvc {
 			return this;
 		}
 
-		public <N> Builder initial(
-			Function<UpdateEvent, CompletableFuture<ViewNameAndState<N>>> function) {
+		public <N> Builder initial(Function<UpdateEvent, CompletableFuture<ViewNameAndState<N>>> function) {
 			return initial(new InitialController<>(function, views));
+		}
+
+		public <N> Builder initial(View<N> view, Function<UpdateEvent, CompletableFuture<N>> function) {
+			return initial(new FixedViewInitialController<>(function, view));
+		}
+
+		@SuppressWarnings("unchecked")
+		public <N> Builder initial(String viewName, Function<UpdateEvent, CompletableFuture<N>> function) {
+			return initial(new FixedViewInitialController<>(function, (View<N>) views.get(viewName)));
+		}
+
+		@SuppressWarnings("unchecked")
+		public <N> Builder initial(Class<N> probe, Function<UpdateEvent, CompletableFuture<N>> function) {
+			return initial(probe.getSimpleName(), function);
 		}
 
 		public <N> Builder view(String name, View<N> view) {
 			views.put(name, view);
 			return this;
+		}
+
+		public <N> Builder view(Class<N> probe, View<N> view) {
+			return view(probe.getSimpleName(), view);
 		}
 
 		public Builder notSoFastView(View<IllegalStateException> notSoFastView) {
@@ -177,8 +194,8 @@ public class Mvc {
 			return null;
 		}
 
-		public Mvc build() {
-			return new Mvc(
+		public Mvc build(boolean initialized) {
+			Mvc mvc = new Mvc(
 				bot,
 				new DispatcherImpl(controllers, initial),
 				notSoFastView,
@@ -186,6 +203,14 @@ public class Mvc {
 				executor,
 				sessions
 			);
+			if (initialized) {
+				mvc.init();
+			}
+			return mvc;
+		}
+
+		public Mvc build() {
+			return build(true);
 		}
 	}
 }
