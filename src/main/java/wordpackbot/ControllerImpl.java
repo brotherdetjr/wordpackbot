@@ -1,25 +1,22 @@
 package wordpackbot;
 
+import lombok.RequiredArgsConstructor;
 import wordpackbot.bots.UpdateEvent;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 
-public class ControllerImpl<O, N> extends NamedViewsAware implements Controller<O, N> {
+@RequiredArgsConstructor
+public class ControllerImpl<O, N> implements Controller<O, N> {
 
 	private final BiFunction<UpdateEvent, O, CompletableFuture<ViewNameAndState<N>>> function;
-
-	public ControllerImpl(BiFunction<UpdateEvent, O, CompletableFuture<ViewNameAndState<N>>> function,
-						  Map<String, View<?>> views) {
-		super(views);
-		this.function = function;
-	}
+	private final Map<String, View<?>> views;
 
 	@Override
 	public CompletableFuture<ViewAndState<N>> transit(UpdateEvent event, O state) {
 		return function.apply(event, state).thenApply(nameAndState ->
-			new ViewAndState<>(getViews().get(nameAndState.getName()), nameAndState.getState()));
+			new ViewAndState<>(views.get(nameAndState.getName()), nameAndState.getState()));
 	}
 
 }

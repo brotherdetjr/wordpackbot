@@ -9,7 +9,6 @@ import wordpackbot.states.StateFactory
 
 import static java.lang.Thread.currentThread
 import static wordpackbot.VertxUtils.vertxExecutor
-import static wordpackbot.ViewNameAndState.vs
 
 @Log4j2
 class Main {
@@ -20,13 +19,8 @@ class Main {
 		//noinspection GroovyAssignabilityCheck
 		def bot = new TelegramBot(config.token, config.name).register(new TelegramBotsApi())
 		new Mvc.Builder(bot)
-			.initial(Playback, { stateFactory.startPlayback it.userId, 'тест' })
-			.controller(
-				Playback,
-				{ event, playback ->
-					(++playback).thenApply { vs Playback, it }
-				}
-			)
+			.initial({ stateFactory.startPlayback it.userId, 'тест' })
+			.controller(Playback, { event, playback -> ++playback })
 			.view(Playback, { it.send it.newState.value })
 			.executor(vertxExecutor())
 			.build()

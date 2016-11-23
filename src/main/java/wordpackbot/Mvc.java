@@ -136,33 +136,32 @@ public class Mvc {
 			return this;
 		}
 
-		public <O, N> Builder controller(
+		public <O, N> Builder funcController(
 			Class<O> probe,
 			BiFunction<UpdateEvent, O, CompletableFuture<ViewNameAndState<N>>> function) {
 			return rawController(probe, new ControllerImpl<>(function, views));
 		}
 
-		public <O, N> Builder initial(Controller<O, N> initial) {
+		public <O, N> Builder controller(
+			Class<O> probe,
+			BiFunction<UpdateEvent, O, CompletableFuture<N>> function) {
+			return funcController(
+				probe,
+				(e, s) -> function.apply(e, s).thenApply(n -> ViewNameAndState.of(e.getClass(), n))
+			);
+		}
+
+		public <O, N> Builder initialController(Controller<O, N> initial) {
 			this.initial = initial;
 			return this;
 		}
 
-		public <N> Builder initial(Function<UpdateEvent, CompletableFuture<ViewNameAndState<N>>> function) {
-			return initial(new InitialController<>(function, views));
+		public <N> Builder initialRaw(Function<UpdateEvent, CompletableFuture<ViewNameAndState<N>>> function) {
+			return initialController(new ControllerImpl<Void, N>((e, ignore) -> function.apply(e), views));
 		}
 
-		public <N> Builder initial(View<N> view, Function<UpdateEvent, CompletableFuture<N>> function) {
-			return initial(new FixedViewInitialController<>(function, view));
-		}
-
-		@SuppressWarnings("unchecked")
-		public <N> Builder initial(String viewName, Function<UpdateEvent, CompletableFuture<N>> function) {
-			return initial(new FixedViewInitialController<>(function, (View<N>) views.get(viewName)));
-		}
-
-		@SuppressWarnings("unchecked")
-		public <N> Builder initial(Class<N> probe, Function<UpdateEvent, CompletableFuture<N>> function) {
-			return initial(probe.getSimpleName(), function);
+		public <N> Builder initial(Function<UpdateEvent, CompletableFuture<N>> function) {
+			return initialRaw(e -> function.apply(e).thenApply(s -> new ViewNameAndState<>(s.getClass().getName(), s)));
 		}
 
 		public <N> Builder view(String name, View<N> view) {
@@ -171,7 +170,7 @@ public class Mvc {
 		}
 
 		public <N> Builder view(Class<N> probe, View<N> view) {
-			return view(probe.getSimpleName(), view);
+			return view(probe.getName(), view);
 		}
 
 		public Builder notSoFastView(View<IllegalStateException> notSoFastView) {
