@@ -3,10 +3,7 @@ package wordpackbot
 import groovy.util.logging.Log4j2
 import spock.lang.Specification
 import spock.util.concurrent.BlockingVariables
-import wordpackbot.bots.ChatBot
-import wordpackbot.bots.UpdateEvent
 import wordpackbot.dao.StubPlaybackSourceDao
-import wordpackbot.dummy.Sender
 import wordpackbot.states.StateFactory
 
 import java.util.concurrent.CompletableFuture
@@ -18,7 +15,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture
 @Log4j2
 class WordPackControllerTest extends Specification {
 
-    static final
+/*    static final
             USER_1 = 2,
             USER_2 = 22,
             CHAT_1 = 3,
@@ -124,5 +121,5 @@ wordPacks {
         barriers.getProperty 'birdy'
         then:
         1 * sender.send('birdy', CHAT_1)
-    }
+    }*/
 }

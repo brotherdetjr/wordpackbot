@@ -1,13 +1,13 @@
 package wordpackbot;
 
 import io.vertx.core.Vertx;
-import lombok.NoArgsConstructor;
+import lombok.experimental.UtilityClass;
 
 import java.util.concurrent.Executor;
 
 import static io.vertx.core.Vertx.vertx;
 
-@NoArgsConstructor
+@UtilityClass
 public class VertxUtils {
 
     public static Executor vertxExecutor(Vertx vertx) {
