@@ -7,6 +7,7 @@ import wordpackbot.states.Playback
 import wordpackbot.states.StateFactory
 
 import static java.lang.Thread.currentThread
+import static puremvc.telegram.TelegramUtils.extractUserId
 import static wordpackbot.VertxUtils.vertxExecutor
 
 @Slf4j
@@ -16,7 +17,7 @@ class Main {
 			.parse(currentThread().contextClassLoader.getResourceAsStream('config.groovy').text)
 		def stateFactory = new StateFactory(new StubPlaybackSourceDao(config))
 		TelegramMvc.builder(config.bot.token as String, config.bot.name as String)
-			.initial({ stateFactory.startPlayback it.sessionId, 'тест' })
+			.initial({ stateFactory.startPlayback extractUserId(it), 'тест' })
 			.handle().when(Playback).by({ event, playback -> ++playback })
 			.render(Playback).as({ it.renderer.send it.state.value })
 			.executor(vertxExecutor())
