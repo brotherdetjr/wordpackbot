@@ -4,7 +4,6 @@ import brotherdetjr.pauline.telegram.TelegramRenderer
 import brotherdetjr.pauline.telegram.events.TelegramEvent
 import brotherdetjr.pauline.telegram.events.TextMessageEvent
 import brotherdetjr.pauline.test.EventSourceImpl
-import groovy.util.logging.Log4j2
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -14,7 +13,6 @@ import java.util.concurrent.atomic.AtomicReference
 
 import static java.util.concurrent.CompletableFuture.completedFuture
 
-@Log4j2
 class FlowTest extends Specification {
 
 	@Shared
