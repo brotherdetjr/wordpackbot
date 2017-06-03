@@ -20,7 +20,7 @@
 		<lombok.version>1.16.10</lombok.version>
 		<slf4j.version>1.7.21</slf4j.version>
 		<guava.version>20.0</guava.version>
-		<spock.version>1.1-groovy-2.4-rc-3</spock.version>
+		<spock.version>1.1-groovy-2.4</spock.version>
 		<cglib-nodep.version>3.2.4</cglib-nodep.version>
 		<commons-collections.version>4.1</commons-collections.version>
 	</properties>
@@ -47,6 +47,12 @@
 			<groupId>brotherdetjr</groupId>
 			<artifactId>brotherdetjr-pauline-telegram</artifactId>
 			<version>${pauline.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>brotherdetjr</groupId>
+			<artifactId>brotherdetjr-pauline-test</artifactId>
+			<version>${pauline.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>

@@ -36,7 +36,7 @@ wordPacks {
     def 'next word is #expected'() {
         given:
         def result = new BlockingVariable<String>()
-        playback = playback ? playback.get().next() : stateFactory.startPlayback(188589442L, 'тест')
+        playback = playback ? ++playback.get() : stateFactory.startPlayback(188589442L, 'тест')
         expect:
         playback.whenComplete { res, ex -> result.set res.value }
         result.get() == expected

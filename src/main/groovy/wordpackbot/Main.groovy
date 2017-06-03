@@ -1,9 +1,8 @@
 package wordpackbot
 
-import brotherdetjr.pauline.telegram.TelegramEngine
+import brotherdetjr.pauline.telegram.TelegramFlowConfigurer
 import groovy.util.logging.Slf4j
 import wordpackbot.dao.StubPlaybackSourceDao
-import wordpackbot.states.Playback
 import wordpackbot.states.StateFactory
 
 import static java.lang.Thread.currentThread
@@ -15,10 +14,9 @@ class Main {
 		def config = new ConfigSlurper()
 			.parse(currentThread().contextClassLoader.getResourceAsStream('config.groovy').text)
 		def stateFactory = new StateFactory(new StubPlaybackSourceDao(config))
-		TelegramEngine.builder(config.bot.token as String, config.bot.name as String)
-			.initial({ stateFactory.startPlayback it.userId, 'тест' })
-			.handle().when(Playback).by({ event, playback -> ++playback })
-			.render(Playback).as({ it.renderer.send it.state.value })
+		def flow = new FlowFactory(stateFactory).create()
+		TelegramFlowConfigurer
+			.configure(flow, config.bot.token as String, config.bot.name as String)
 			.executor(vertxExecutor())
 			.build()
 		log.info 'Started'
