@@ -34,7 +34,7 @@
 				<executions>
 					<execution>
 						<goals>
-							<goal>testCompile</goal>
+							<goal>compile</goal>
 						</goals>
 					</execution>
 				</executions>

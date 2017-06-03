@@ -2,6 +2,7 @@ package wordpackbot
 
 import groovy.util.logging.Log4j2
 import spock.lang.Specification
+/*
 import spock.util.concurrent.BlockingVariables
 import wordpackbot.dao.StubPlaybackSourceDao
 import wordpackbot.states.StateFactory
@@ -11,6 +12,7 @@ import java.util.concurrent.CompletableFuture
 import static com.google.common.collect.Maps.newConcurrentMap
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor
 import static java.util.concurrent.CompletableFuture.completedFuture
+*/
 
 @Log4j2
 class WordPackControllerTest extends Specification {

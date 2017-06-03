@@ -15,7 +15,7 @@ class Main {
 		def config = new ConfigSlurper()
 			.parse(currentThread().contextClassLoader.getResourceAsStream('config.groovy').text)
 		def stateFactory = new StateFactory(new StubPlaybackSourceDao(config))
-		TelegramMvc.builder(config.token as String, config.name as String)
+		TelegramMvc.builder(config.bot.token as String, config.bot.name as String)
 			.initial({ stateFactory.startPlayback it.sessionId, 'тест' })
 			.handle().when(Playback).by({ event, playback -> ++playback })
 			.render(Playback).as({ it.renderer.send it.state.value })
