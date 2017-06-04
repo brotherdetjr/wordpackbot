@@ -1,4 +1,4 @@
-package wordpackbot.dao
+package brotherdetjr.wordpackbot.dao
 
 import java.util.concurrent.CompletableFuture
 

@@ -1,12 +1,12 @@
-package wordpackbot
+package brotherdetjr.wordpackbot
 
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.BlockingVariable
-import wordpackbot.dao.StubPlaybackSourceDao
-import wordpackbot.states.Playback
-import wordpackbot.states.StateFactory
+import brotherdetjr.wordpackbot.dao.StubPlaybackSourceDao
+import brotherdetjr.wordpackbot.states.Playback
+import brotherdetjr.wordpackbot.states.StateFactory
 
 import java.util.concurrent.CompletableFuture
 

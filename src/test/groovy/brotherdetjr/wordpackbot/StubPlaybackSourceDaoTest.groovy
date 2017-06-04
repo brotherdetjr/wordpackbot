@@ -1,10 +1,10 @@
-package wordpackbot
+package brotherdetjr.wordpackbot
 
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
 import spock.util.concurrent.BlockingVariable
-import wordpackbot.dao.StubPlaybackSourceDao
+import brotherdetjr.wordpackbot.dao.StubPlaybackSourceDao
 
 class StubPlaybackSourceDaoTest extends Specification {
 

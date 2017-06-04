@@ -1,4 +1,4 @@
-package wordpackbot
+package brotherdetjr.wordpackbot
 
 import brotherdetjr.pauline.telegram.TelegramRenderer
 import brotherdetjr.pauline.telegram.events.TelegramEvent
@@ -6,7 +6,7 @@ import brotherdetjr.pauline.test.EventSourceImpl
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
-import wordpackbot.states.StateFactory
+import brotherdetjr.wordpackbot.states.StateFactory
 
 import java.util.concurrent.atomic.AtomicReference
 

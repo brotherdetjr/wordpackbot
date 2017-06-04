@@ -1,10 +1,10 @@
-package wordpackbot;
+package brotherdetjr.wordpackbot;
 
 import brotherdetjr.pauline.core.Flow;
 import brotherdetjr.pauline.telegram.TelegramRenderer;
 import brotherdetjr.pauline.telegram.events.TelegramEvent;
-import wordpackbot.states.Playback;
-import wordpackbot.states.StateFactory;
+import brotherdetjr.wordpackbot.states.Playback;
+import brotherdetjr.wordpackbot.states.StateFactory;
 
 import static brotherdetjr.pauline.telegram.TelegramFlowConfigurer.flow;
 

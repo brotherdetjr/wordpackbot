@@ -1,18 +1,17 @@
-package wordpackbot
+package brotherdetjr.wordpackbot
 
 import brotherdetjr.pauline.telegram.TelegramFlowConfigurer
 import groovy.util.logging.Slf4j
-import wordpackbot.dao.StubPlaybackSourceDao
-import wordpackbot.states.StateFactory
+import brotherdetjr.wordpackbot.dao.StubPlaybackSourceDao
+import brotherdetjr.wordpackbot.states.StateFactory
 
-import static java.lang.Thread.currentThread
-import static wordpackbot.VertxUtils.vertxExecutor
+import static brotherdetjr.utils.Utils.resourceAsStream
+import static brotherdetjr.utils.vertx.VertxUtils.vertxExecutor
 
 @Slf4j
 class Main {
 	static void main(String... args) {
-		def config = new ConfigSlurper()
-			.parse(currentThread().contextClassLoader.getResourceAsStream('config.groovy').text)
+		def config = new ConfigSlurper().parse(resourceAsStream('config.groovy').text)
 		def stateFactory = new StateFactory(new StubPlaybackSourceDao(config))
 		def flow = new FlowFactory(stateFactory).create()
 		TelegramFlowConfigurer

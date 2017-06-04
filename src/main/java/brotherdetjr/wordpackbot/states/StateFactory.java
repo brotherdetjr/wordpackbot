@@ -1,7 +1,7 @@
-package wordpackbot.states;
+package brotherdetjr.wordpackbot.states;
 
 import lombok.RequiredArgsConstructor;
-import wordpackbot.dao.PlaybackSourceDao;
+import brotherdetjr.wordpackbot.dao.PlaybackSourceDao;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,7 +17,7 @@ import static java.util.Collections.singleton;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
-import static wordpackbot.states.Playback.END_OF_ENTRY;
+import static brotherdetjr.wordpackbot.states.Playback.END_OF_ENTRY;
 
 @RequiredArgsConstructor
 public class StateFactory {

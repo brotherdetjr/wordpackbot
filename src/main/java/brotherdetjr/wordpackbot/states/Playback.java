@@ -1,4 +1,4 @@
-package wordpackbot.states;
+package brotherdetjr.wordpackbot.states;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

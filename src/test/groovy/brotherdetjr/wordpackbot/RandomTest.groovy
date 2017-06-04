@@ -1,4 +1,4 @@
-package wordpackbot
+package brotherdetjr.wordpackbot
 
 import spock.lang.Specification
 
