@@ -51,7 +51,7 @@ class FlowTest extends Specification {
 		where:
 		expected << ['птичка', 'birdy',
 					 'киска', 'kitty', "'кити",
-			         'собачка', 'doggy', "'доги",
+					 'собачка', 'doggy', "'доги",
 					 'собачка', 'doggy', "'доги",
 					 'птичка', 'birdy',
 					 'киска', 'kitty', "'кити"]
