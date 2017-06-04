@@ -10,11 +10,11 @@ import static io.vertx.core.Vertx.vertx;
 @UtilityClass
 public class VertxUtils {
 
-    public static Executor vertxExecutor(Vertx vertx) {
-        return command -> vertx.getOrCreateContext().runOnContext(event -> command.run());
-    }
+	public static Executor vertxExecutor(Vertx vertx) {
+		return command -> vertx.getOrCreateContext().runOnContext(event -> command.run());
+	}
 
-    public static Executor vertxExecutor() {
-        return vertxExecutor(vertx());
-    }
+	public static Executor vertxExecutor() {
+		return vertxExecutor(vertx());
+	}
 }

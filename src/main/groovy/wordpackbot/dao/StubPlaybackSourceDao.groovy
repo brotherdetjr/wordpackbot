@@ -6,14 +6,14 @@ import static java.util.concurrent.CompletableFuture.completedFuture
 
 class StubPlaybackSourceDao implements PlaybackSourceDao {
 
-    private final ConfigObject config
+	private final ConfigObject config
 
-    StubPlaybackSourceDao(ConfigObject config) {
-        this.config = config
-    }
+	StubPlaybackSourceDao(ConfigObject config) {
+		this.config = config
+	}
 
-    @Override
-    CompletableFuture<Collection<Collection<String>>> getWordPack(long userId, String wordPackName) {
-        completedFuture([] + config.wordPacks[Long.toString(userId)][wordPackName].content)
-    }
+	@Override
+	CompletableFuture<Collection<Collection<String>>> getWordPack(long userId, String wordPackName) {
+		completedFuture([] + config.wordPacks[Long.toString(userId)][wordPackName].content)
+	}
 }

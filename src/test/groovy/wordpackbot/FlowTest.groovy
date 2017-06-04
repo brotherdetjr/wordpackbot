@@ -49,11 +49,13 @@ class FlowTest extends Specification {
 		then:
 		1 * renderer.get().send(expected)
 		where:
-		expected << ['птичка', 'birdy',
-					 'киска', 'kitty', "'кити",
-					 'собачка', 'doggy', "'доги",
-					 'собачка', 'doggy', "'доги",
-					 'птичка', 'birdy',
-					 'киска', 'kitty', "'кити"]
+		expected << [
+			'птичка', 'birdy',
+			'киска', 'kitty', "'кити",
+			'собачка', 'doggy', "'доги",
+			'собачка', 'doggy', "'доги",
+			'птичка', 'birdy',
+			'киска', 'kitty', "'кити"
+		]
 	}
 }

@@ -10,17 +10,17 @@ class StubPlaybackSourceDaoTest extends Specification {
 
 	@Shared
 		config = new ConfigSlurper().parse('''
-wordPacks {
-    '188589442' {
-        'тест' {
-            content = [
-                    ['птичка', 'birdy', "'бёди"],
-                    ['киска', 'kitty', "'кити"],
-                    ['собачка', 'doggy', "'доги"]
-            ]
-        }
-    }
-}''')
+			|wordPacks {
+			|	'188589442' {
+			|		'тест' {
+			|			content = [
+			|				['птичка', 'birdy', "'бёди"],
+			|				['киска', 'kitty', "'кити"],
+			|				['собачка', 'doggy', "'доги"]
+			|			]
+			|		}
+			|	}
+			|}'''.stripMargin())
 
 	@Shared
 		dao = new StubPlaybackSourceDao(config)
