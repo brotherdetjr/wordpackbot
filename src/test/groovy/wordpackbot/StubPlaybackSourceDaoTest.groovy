@@ -8,8 +8,8 @@ import wordpackbot.dao.StubPlaybackSourceDao
 
 class StubPlaybackSourceDaoTest extends Specification {
 
-    @Shared
-            config = new ConfigSlurper().parse('''
+	@Shared
+		config = new ConfigSlurper().parse('''
 wordPacks {
     '188589442' {
         'тест' {
@@ -22,30 +22,20 @@ wordPacks {
     }
 }''')
 
-    @Shared
-            dao = new StubPlaybackSourceDao(config, new Random(0))
+	@Shared
+		dao = new StubPlaybackSourceDao(config)
 
-    @Unroll
-    def 'shuffled() returns (pseudo)random sequence each time'() {
-        given:
-        def result = new BlockingVariable<List>()
-        expect:
-        dao.shuffled(188589442L, 'тест').whenComplete { res, ex -> result.set(res as List) }
-        result.get() == expected
-        where:
-        expected << [[
-                             ['собачка', 'doggy', "'доги"],
-                             ['киска', 'kitty', "'кити"],
-                             ['птичка', 'birdy', "'бёди"]
-                     ], [
-                             ['птичка', 'birdy', "'бёди"],
-                             ['собачка', 'doggy', "'доги"],
-                             ['киска', 'kitty', "'кити"]
-                     ], [
-                             ['киска', 'kitty', "'кити"],
-                             ['птичка', 'birdy', "'бёди"],
-                             ['собачка', 'doggy', "'доги"]
-                     ]]
-    }
+	@Unroll
+	def 'getWorkPack() returns preconfigured list of lists of strings for now'() {
+		given:
+		def result = new BlockingVariable<List>()
+		dao.getWordPack(188589442L, 'тест').whenComplete { res, ex -> result.set(res as List) }
+		expect:
+		result.get() == [
+			['птичка', 'birdy', "'бёди"],
+			['киска', 'kitty', "'кити"],
+			['собачка', 'doggy', "'доги"]
+		]
+	}
 
 }

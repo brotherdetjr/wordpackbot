@@ -27,7 +27,7 @@ wordPacks {
 }''')
 
     @Shared
-            stateFactory = new StateFactory(new StubPlaybackSourceDao(config, new Random(0)))
+            stateFactory = new StateFactory(new StubPlaybackSourceDao(config), new Random(0))
 
     @Shared
             CompletableFuture<Playback> playback

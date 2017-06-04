@@ -2,7 +2,6 @@ package wordpackbot
 
 import brotherdetjr.pauline.telegram.TelegramRenderer
 import brotherdetjr.pauline.telegram.events.TelegramEvent
-import brotherdetjr.pauline.telegram.events.TextMessageEvent
 import brotherdetjr.pauline.test.EventSourceImpl
 import spock.lang.Shared
 import spock.lang.Specification
@@ -11,13 +10,14 @@ import wordpackbot.states.StateFactory
 
 import java.util.concurrent.atomic.AtomicReference
 
+import static brotherdetjr.pauline.telegram.test.TelegramEvents.textMessage
 import static java.util.concurrent.CompletableFuture.completedFuture
 
 class FlowTest extends Specification {
 
 	@Shared
 		stateFactory = new StateFactory(
-			{ long userId, String wordPackName -> /* not really shuffled */
+			{ long userId, String wordPackName ->
 				completedFuture(
 					[
 						['собачка', 'doggy', "'доги"],
@@ -25,7 +25,8 @@ class FlowTest extends Specification {
 						['птичка', 'birdy']
 					]
 				)
-			}
+			},
+			new Random(0)
 		)
 
 	@Shared
@@ -44,15 +45,15 @@ class FlowTest extends Specification {
 		given:
 		renderer.set Mock(TelegramRenderer)
 		when:
-		eventSource.fire(new TextMessageEvent(3L, 'disa', 4L, 5L, 'whatever'))
+		eventSource.fire textMessage('whatever')
 		then:
 		1 * renderer.get().send(expected)
 		where:
-		expected << ['собачка', 'doggy', "'доги",
+		expected << ['птичка', 'birdy',
 					 'киска', 'kitty', "'кити",
-					 'птичка', 'birdy',
+			         'собачка', 'doggy', "'доги",
 					 'собачка', 'doggy', "'доги",
-					 'киска', 'kitty', "'кити",
-					 'птичка', 'birdy']
+					 'птичка', 'birdy',
+					 'киска', 'kitty', "'кити"]
 	}
 }

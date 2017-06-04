@@ -50,7 +50,7 @@
 		</dependency>
 		<dependency>
 			<groupId>brotherdetjr</groupId>
-			<artifactId>brotherdetjr-pauline-test</artifactId>
+			<artifactId>brotherdetjr-pauline-telegram-test</artifactId>
 			<version>${pauline.version}</version>
 			<scope>test</scope>
 		</dependency>
